@@ -20,6 +20,12 @@ export default registerCanvasElementDocument({
       required: true,
     },
     {
+      name: 'type',
+      description: 'Type of arc: "default" (shortest arc), "major" (arc > 180°), or "minor" (arc < 180°)',
+      required: false,
+      default: 'default',
+    },
+    {
       name: 'color',
       description: 'The color of the arc',
       required: false,

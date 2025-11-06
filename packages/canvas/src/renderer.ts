@@ -33,17 +33,24 @@ export const createCanvasRenderer = (id: string, options: CanvasRendererOptions)
     return pool.get(id) as T
   }
 
-  const processAttrs = (attrs: object) => {
+  const processAttrs = (attrs: object): object => {
+    const resolveUse = (value: string) => {
+      if (value.trim().startsWith('use(') && value.trim().endsWith(')')) {
+        const id = value.trim().slice(4, -1)
+        const element = getElement(id)
+        if (element) {
+          return element
+        }
+      }
+      return value
+    }
     return Object.fromEntries(Object.entries(attrs).map(([key, value]) => {
       if (typeof value === 'string') {
-        if (value.trim().startsWith('use(') && value.trim().endsWith(')')) {
-          const id = value.trim().slice(4, -1)
-          const element = getElement(id)
-          if (element) {
-            return [key, element]
-          }
-        }
-        return [key, value]
+        return [key, resolveUse(value)]
+      } else if (Array.isArray(value)) {
+        const resolved = value.map(resolveUse)
+        console.log('resolved', key, resolved)
+        return [key, resolved]
       }
       return [key, value]
     }))
@@ -59,7 +66,11 @@ export const createCanvasRenderer = (id: string, options: CanvasRendererOptions)
 
   const load = (actions: CanvasPageAction[]) => {
     for (const action of actions) {
-      if (action.type === 'element') add(action)
+      try {
+        if (action.type === 'element') add(action)
+      } catch (error) {
+        console.error('Error loading action', action, error)
+      }
     }
   }
 

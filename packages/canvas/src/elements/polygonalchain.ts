@@ -1,15 +1,14 @@
 import type { Point } from 'jsxgraph'
 import { defineElement } from '../element-structor'
 
-export interface CardinalsplineAttributes {
+export interface PolygonalchainAttributes {
   points: Array<[number, number] | Point>
-  tau?: number
   color?: string
 }
 
-export const cardinalspline = defineElement<CardinalsplineAttributes>((options) => {
+export const polygonalchain = defineElement<PolygonalchainAttributes>((options) => {
   return (board) => {
-    return board.create('cardinalspline', [options.points, options.tau ?? 0.5], {
+    return board.create('polygonalchain', [...options.points], {
       ...(options.color && { strokeColor: options.color }),
     })
   }

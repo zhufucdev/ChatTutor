@@ -1,8 +1,8 @@
 import { registerCanvasElementDocument } from '../document'
 
 export default registerCanvasElementDocument({
-  name: 'cardinalspline',
-  description: 'A smooth curve (cardinal spline) through a set of points',
+  name: 'spline',
+  description: 'A spline curve through a set of points with different interpolation algorithms',
   attrs: [
     {
       name: 'points',
@@ -10,8 +10,14 @@ export default registerCanvasElementDocument({
       required: true,
     },
     {
+      name: 'type',
+      description: 'Type of spline interpolation: "cubic" (cubic spline), "cardinal" (cardinal spline with tau parameter), or "metapost" (Metapost spline)',
+      required: false,
+      default: 'cubic',
+    },
+    {
       name: 'tau',
-      description: 'Tension parameter for the cardinal spline (0-1, where 0 is linear and 1 is very curved)',
+      description: 'Tension parameter for cardinal spline (0-1, where 0 is linear and 1 is very curved). Only used when type="cardinal"',
       required: false,
       default: '0.5',
     },
