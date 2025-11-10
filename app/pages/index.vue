@@ -10,6 +10,13 @@ const create = async () => {
   running.value = false
   navigateTo(`/chat/${id}?input=${input.value}`)
 }
+
+const getTime = (): 'morning' | 'afternoon' | 'evening' => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'morning'
+  if (hour < 18) return 'afternoon'
+  return 'evening'
+}
 </script>
 
 <template>
@@ -21,8 +28,8 @@ const create = async () => {
       <span class="text-xl font-semibold text-gray-400 select-none">ChatTutor</span>
     </div>
     <div class="size-full h-full flex flex-col gap-10 items-center justify-center py-10">
-      <h1 class="text-3xl md:text-4xl font-mono text-gray-600 flex text-center pt-24 select-none">
-        Welcome to ChatTutor!
+      <h1 class="title text-3xl md:text-4xl font-mono flex text-center pt-24 select-none">
+        Good {{ getTime() }}, Let's start!
       </h1>
       <div class="w-full flex flex-col h-full justify-end md:justify-center items-center mb-auto">
         <div class="flex justify-end px-10 w-full md:max-w-200 h-35">
@@ -32,3 +39,12 @@ const create = async () => {
     </div>
   </div>
 </template>
+<style scoped>
+.title {
+  background: linear-gradient(to right, #90EE90 0%, #8BDEBD 50%, #87CEEB 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+</style>

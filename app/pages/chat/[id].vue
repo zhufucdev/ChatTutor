@@ -5,6 +5,8 @@ const { handleAction, board, loadPages, currentPages, page, notes } = useBoard()
 const { messages, input, send, loadMessages, running } = useChat(handleAction)
 const promptAreaRef = ref()
 
+provide('page', page)
+
 const route = useRoute()
 const { input: initialInput } = route.query as { input: string }
 

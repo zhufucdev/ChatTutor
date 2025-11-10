@@ -3,7 +3,8 @@ import { db } from '#shared/db'
 import { chat } from '#shared/db/chat'
 import { eq } from 'drizzle-orm'
 import type { FullAction, Page } from '@chat-tutor/shared'
-import type { Message as DisplayMessage, Context } from '#shared/types'
+import type { Message as DisplayMessage, Context, AllAction } from '#shared/types'
+import { createMessageResolver } from '#shared/types/message'
 
 export default defineEventHandler(async (event) => {
   const apiKey = process.env.API_KEY!
@@ -48,29 +49,16 @@ export default defineEventHandler(async (event) => {
     },
   })
   const stream = createEventStream(event)
-  const addAsistant = () => messages.push({
-    type: 'assistant',
-    content: '',
-    id: crypto.randomUUID(),
-  })
-  let divided: boolean = true
+  const resolve = createMessageResolver(
+    (message: DisplayMessage) => messages.push(message),
+    () => messages,
+    () => crypto.randomUUID(),
+  )
   const send = (chunk: FullAction) => {
-    if (chunk.type === 'text') {
-      if (divided) {
-        addAsistant()
-        divided = false
-      }
-      messages.at(-1)!.content += chunk.options.chunk
-    } else {
-      divided = true
-    }
+    resolve(chunk as AllAction)
     stream.push(JSON.stringify(chunk))
   }
   event.waitUntil((async () => {
-    if (divided) {
-      addAsistant()
-      divided = false
-    }
     await agent(input, send as AgentChunker)
   })().then(async () => {
     await db.update(chat).set({

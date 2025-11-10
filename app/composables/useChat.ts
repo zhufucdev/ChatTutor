@@ -1,17 +1,17 @@
-import type { Message } from '#shared/types'
+import type { Message, AllAction } from '#shared/types'
 import type { ActionHandler } from './useBoard'
-import type { FullAction, Action } from '@chat-tutor/shared'
-import type { PageCreationAction, TextChunkAction } from '@chat-tutor/agent'
-import type { CanvasPageAction } from '@chat-tutor/canvas'
-import type { MermaidPageAction } from '@chat-tutor/mermaid'
+import { createMessageResolver } from '#shared/types/message'
+import type { FullAction } from '@chat-tutor/shared'
 import { v4 } from 'uuid'
-
-export type AllAction = FullAction | Action | PageCreationAction | TextChunkAction | CanvasPageAction | MermaidPageAction
 
 export const useChat = (
   handleAction: ActionHandler,
 ) => {
   const messages = ref<Message[]>([])
+  const resolve = createMessageResolver(
+    (message: Message) => messages.value.push(message),
+    () => messages.value,
+  )
   const input = ref('')
   const running = ref(false)
   const { params } = useRoute()
@@ -32,29 +32,14 @@ export const useChat = (
       content: i,
       id: v4(),
     })
-    const add = () => messages.value.push({
-      type: 'assistant',
-      content: '',
-      id: v4(),
-    })
-    let divided: boolean = true
     
     eventSource = new EventSource(`/api/chat/${id}?input=${i}`)
     
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data) as AllAction
-        console.log(data)
-        if (divided) {
-          add()
-          divided = false
-        }
-        if (data.type === 'text') {
-          messages.value.at(-1)!.content += (<TextChunkAction>data).options.chunk
-        } else {
-          divided = true
-          handleAction(<FullAction>data)
-        }
+        handleAction(data as FullAction)
+        resolve(data)
       } catch (error) {
         console.error('Failed to parse event data:', error)
       }

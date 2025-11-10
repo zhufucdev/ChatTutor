@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { MarkdownRender } from 'vue-renderer-markdown'
 import type { Message } from '#shared/types'
 
 const props = defineProps<{
@@ -13,9 +12,9 @@ const promptAreaRef = ref()
 const isUserScrolling = ref(false)
 let scrollTimeout: NodeJS.Timeout | null = null
 
-const blur = () => {
-  promptAreaRef.value?.blur()
-}
+const emits = defineEmits<{
+  (e: 'send', input: string): void
+}>()
 
 defineExpose({
   blur
@@ -82,13 +81,9 @@ onUnmounted(() => {
       <div
         v-for="message in messages"
         :key="message.id"
-        class="text-gray-600 px-2 markdown"
-        :class="{
-          'border-gray-300 border border-rounded-lg': message.type === 'user',
-        }"
       >
         <ClientOnly>
-          <MarkdownRender :content="message.content" />
+          <Message :message="message" />
         </ClientOnly>
       </div>
     </div>
@@ -97,6 +92,7 @@ onUnmounted(() => {
         ref="promptAreaRef"
         v-model:input="input"
         :running="running"
+        @send="emits('send', input)"
       />
     </div>
   </div>

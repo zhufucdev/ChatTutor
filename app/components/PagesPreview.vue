@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { PageType } from '@chat-tutor/shared'
+import { emojiMap } from '../utils/emoji-map'
 
 defineProps<{
   pages: Page[]
 }>()
 
-const emojiMap: Record<string, string> = {
-  [PageType.CANVAS]: '🎨',
-  [PageType.MERMAID]: '📈',
-}
+
 
 defineEmits<{
   (e: 'select', id: string): void
